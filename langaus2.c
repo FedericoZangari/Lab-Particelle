@@ -2,13 +2,12 @@ using namespace RooFit;
 
 void langaus2(){ 
     TCanvas* c = new TCanvas();
-    int data[100] = {0,0,0,0,0,0,2,6,11,18,18,55,90,141,255,323,454,563,681,
-                    737,821,796,832,720,637,558,519,460,357,291,279,241,212,
-                    153,164,139,106,95,91,76,80,80,59,58,51,30,49,23,35,28,23,
-                    22,27,27,24,20,16,17,14,20,12,12,13,10,17,7,6,12,6,12,4,
-                    9,9,10,3,4,5,2,4,1,5,5,1,7,1,6,3,3,3,4,5,4,4,2,2,7,2,4};
-    TH1F *hist = new TH1F("hist","langaus fit",400,0,400);
-    for (int i=0; i<100; i++) hist->Fill(i,data[i]);   
+    TH1D *hist = new TH1D("histogram", "Landau convoluta con Gaussiana", 100, -50, 200);
+    for (int i = 0; i < 100000; ++i) {
+        double value = 35.0 + gRandom->Landau(0, 10) + gRandom->Gaus(0, 5);
+        hist->Fill(value);
+    }
+      
     
     int nbins = hist->GetSize()-2;
 
@@ -29,7 +28,7 @@ void langaus2(){
 
     // Construct landau(t,ml,sl)                                                                                                                                                                                                                                                          
     RooRealVar ml("Landau - mean","mean landau",mean,mean-sigma,mean+sigma);
-    RooRealVar sl("Landau - sigma","sigma landau",0.04,0.,0.2);
+    RooRealVar sl("Landau - sigma","sigma landau",0.04,0.,100);
     RooLandau landau("lx","lx",t,ml,sl);
 
     // C o n s t r u c t   c o n v o l u t i o n   p d f                                                                                                                                                                                                                                  
@@ -55,7 +54,7 @@ void langaus2(){
     lxg.plotOn(xframe);
     xframe->GetYaxis()->SetTitle("au");
     xframe->GetXaxis()->SetTitle("#DeltaE/#Deltax [MeV/mm]");
-    xframe->GetXaxis()->SetRangeUser(0,70);
+    xframe->GetXaxis()->SetRangeUser(0,200);
     xframe->GetYaxis()->SetTitleOffset(1.4);
     xframe->Draw();
     // Calculate chi2                                                                                                                                                                                                                                                                     
