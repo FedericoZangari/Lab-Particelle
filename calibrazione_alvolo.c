@@ -18,7 +18,7 @@ void calibrazione_alvolo(){
 
 
     g1->Fit("pol1");
-    TF1* t1 = g1->GetFunction("pol1");
+    TF1* t1 = g1->GetFunction("pol1");  
 
 
     f2 >> x >> sigma_x;

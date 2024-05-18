@@ -23,7 +23,34 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TMath.h"
- 
+
+TH1F* ReadFillAll( const char* Filename) {
+    
+	ifstream f(Filename);
+  TH1F *h1 = new TH1F("h1", "Spettro", 16383, 0, 16383);
+  int i = 0;
+	if(!f){
+  		cerr <<"Error: cannot open file " <<endl;
+		exit(0);
+	}
+  else{
+      double var;
+			for (;;){
+					
+          f >> var;
+          h1->SetBinContent(i,var);		
+									
+					if(f.eof()){
+						cout << "End of file reached "<< endl;
+						break;
+					}
+          i++;		
+			}
+		}	f.close();
+
+	return h1;
+}
+
 double langaufun(double *x, double *par) {
  
    //Fit parameters:
@@ -234,14 +261,9 @@ int langaupro(double *params, double &maxx, double &FWHM) {
 void langaus() {
     TCanvas* c = new TCanvas();
    // Fill Histogram
-   int data[100] = {0,0,0,0,0,0,2,6,11,18,18,55,90,141,255,323,454,563,681,
-                    737,821,796,832,720,637,558,519,460,357,291,279,241,212,
-                    153,164,139,106,95,91,76,80,80,59,58,51,30,49,23,35,28,23,
-                    22,27,27,24,20,16,17,14,20,12,12,13,10,17,7,6,12,6,12,4,
-                    9,9,10,3,4,5,2,4,1,5,5,1,7,1,6,3,3,3,4,5,4,4,2,2,7,2,4};
-   TH1F *histo = new TH1F("snr","Signal-to-noise",400,0,400);
- 
-   for (int i=0; i<100; i++) histo->Fill(i,data[i]);
+   TH1F *histo = ReadFillAll("dati_landau4.dat");
+   histo->Rebin(10);
+   
     histo->Sumw2();
    // Fitting SNR histo
    printf("Fitting...\n");
@@ -249,11 +271,11 @@ void langaus() {
    // Setting fit range and start values
    double fr[2];
    double sv[4], pllo[4], plhi[4], fp[4], fpe[4];
-   fr[0]=0.3*histo->GetMean();
-   fr[1]=3.0*histo->GetMean();
+   fr[0]=2200;
+   fr[1]=5500;
  
    pllo[0]=0.5; pllo[1]=5.0; pllo[2]=1.0; pllo[3]=0.4;
-   plhi[0]=5.0; plhi[1]=50.0; plhi[2]=1000000.0; plhi[3]=50.0;
+   plhi[0]=5000.0; plhi[1]=5000.0; plhi[2]=100000000.0; plhi[3]=5000.0;
    sv[0]=1.8; sv[1]=20.0; sv[2]=50000.0; sv[3]=3.0;
  
    double chisqr;
@@ -267,11 +289,11 @@ void langaus() {
  
    // Global style settings
    gStyle->SetOptStat(1111);
-   gStyle->SetOptFit(111);
+   gStyle->SetOptFit(1111);
    gStyle->SetLabelSize(0.03,"x");
    gStyle->SetLabelSize(0.03,"y");
  
-   histo->GetXaxis()->SetRange(0,70);
+   histo->GetXaxis()->SetRangeUser(0,5700);
    histo->SetMarkerStyle(8);
    histo->Draw("HIST");
    fitsnr->Draw("lsame");
